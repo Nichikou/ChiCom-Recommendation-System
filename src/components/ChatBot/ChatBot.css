@@ -1,0 +1,131 @@
+.chat-window{
+  width:350px;
+  height:550px;
+  display: flex;
+  position:fixed;
+  flex-direction: column;
+  right:25px;
+  bottom: 85px;
+  border:2px solid black;
+  background-color: #f9f9f9;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.chat-window header{  
+  position: relative;
+  background-color: #fc5a55;
+  font-size: 0.8rem;
+  text-align:center;
+}
+
+.chat-window header h2{
+    color:#000;
+}
+
+.chat-area{
+  flex:1;
+  position: relative;
+  margin:0;
+  box-sizing: border-box;
+  background: #f3f4f5;
+  padding:12px 8px;
+  overflow-y: auto;
+}
+
+.chat-area::-webkit-scrollbar{
+  width:4px;
+  background-color: transparent;
+}
+
+.chat-area::-webkit-scrollbar-thumb{
+  border-radius: 10px;
+  background-color: #cdcdcd;
+}
+
+.message{
+  display: flex;
+}
+.message.received{
+  justify-content: flex-start;
+}
+
+.message.sent{
+  justify-content: flex-end;
+}
+
+.message-bubble{
+  max-width: 70%;
+  word-wrap: break-word;
+  border-radius: 15px;
+  padding: 12px 12px;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.message.received .message-bubble{
+  background: white;
+  color:#000000;
+  border-bottom-left-radius: 0;
+
+}
+
+.message.sent .message-bubble{
+  background: linear-gradient(to right, rgb(225, 37, 37) 0%, rgb(226,52,37) 25%, rgb(226,71, 37) 50%, rgb(226,90,27) 75%, rgb(226,109,37) 100%) ;
+  border-bottom-right-radius: 0;
+  color:#ffffff
+}
+
+
+.chat-input{
+  background: white;
+  padding: 20px;
+  border-top: 1px solid #e9ecef;;
+}
+
+.chat-input-wrapper{
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 25px;
+  padding: 8px;
+}
+
+.chat-input-wrapper input{
+  flex: 1;
+  border:none;
+  outline:none;
+  resize: none;
+  background: transparent;
+}
+
+.chat-input-wrapper button{
+  display: flex;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
+  padding:5px;
+  border: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.chat-input-wrapper button.has-text{
+  background-color: #e55757;
+}
+
+.chat-input-wrapper button.no-text{
+  background-color: #a39d9d;
+  pointer-events: none;
+}
+
+.chat-input-wrapper button.has-text:hover{
+  cursor: pointer;
+}
+
+.chat-input-wrapper .send-icon{
+  margin: 0;
+  font-size: 24px;
+  color:white;
+}
