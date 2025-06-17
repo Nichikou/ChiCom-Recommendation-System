@@ -29,39 +29,92 @@ const INIT_MESSAGE: Message = {
 //Components Main Code
 const ChatBot = ({ chatOpen }: ChatBotProps) => {
   //Hook for input field
-  const [textValue, setTextValue] = useState("");
+  const [userText, setUserText] = useState<string>("");
   const [messageList, setMessageList] = useState<Message[]>([INIT_MESSAGE]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   //Update hook when input field changes
   const handleInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setTextValue(event.target.value);
+      setUserText(event.target.value);
     },
     []
   );
 
+  const handleMessage = useCallback(
+    (message: string, senderType: "sent" | "received") => {
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        content: message,
+        sender: senderType,
+      };
+
+      setMessageList((prev) => [...prev, newMessage]);
+
+      if (senderType === "sent") {
+        setUserText("");
+        sendJSON(message);
+      }
+    },
+    [userText]
+  );
+
   //Handle message submission
-  const handleSendMessage = useCallback(
+  const handleFormSubmit = useCallback(
     (event: FormEvent) => {
       event.preventDefault();
-
-      const trimmedText = textValue.trim();
+      const trimmedText = userText.trim();
 
       if (!trimmedText) {
         return;
       }
-
-      const newMessage: Message = {
-        id: Date.now().toString(),
-        content: textValue,
-        sender: "sent",
-      };
-
-      setMessageList((prev) => [...prev, newMessage]);
-      setTextValue("");
+      handleMessage(trimmedText, "sent");
     },
-    [textValue]
+    [userText]
+  );
+
+  const sendJSON = useCallback(
+    async (message: string) => {
+      try {
+        const response = await fetch(
+          "https://n8n-n8n.840pqj.easypanel.host/webhook/e3d8f10a-fafd-4cee-8df4-4efe1d47e019",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: message }),
+          }
+        );
+
+        if (!response.ok) {
+          console.log(response);
+          throw new Error("API error");
+        }
+
+        const responseData = await response.json();
+        setMessageList((prev) => [
+          ...prev,
+          {
+            id: responseData.messageID,
+            content: responseData.message,
+            sender: "received",
+          },
+        ]);
+      } catch (err) {
+        if (err instanceof Error) {
+          setMessageList((prev) => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              content: err.message,
+              sender: "received",
+            },
+          ]);
+        }
+      }
+    },
+    [handleMessage]
   );
 
   useEffect(() => {
@@ -107,13 +160,13 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
           <div className="chat-input">
             <form
               className="chat-input-wrapper"
-              onSubmit={(event) => handleSendMessage(event)}
+              onSubmit={(event) => handleFormSubmit(event)}
             >
               {/*Input Area*/}
               <input
                 type="text"
                 placeholder="Type a message..."
-                value={textValue}
+                value={userText}
                 autoComplete="off"
                 onChange={handleInputChange}
               ></input>
@@ -121,13 +174,13 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
               {/*Submit Button*/}
               <motion.button
                 type="submit"
-                {...(textValue.trim() && {
+                {...(userText.trim() && {
                   whileHover: { scale: 1.05 },
                   whileTap: { scale: 0.9 },
                 })}
                 transition={{ duration: 0.2, ease: "easeInOut" }}
                 aria-label="Send Message"
-                className={textValue.trim() === "" ? "no-text" : "has-text"}
+                className={userText.trim() === "" ? "no-text" : "has-text"}
               >
                 <LuSend className="send-icon" />
               </motion.button>
