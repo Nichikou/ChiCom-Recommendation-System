@@ -137,7 +137,10 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
         >
           {/*Chat Header*/}
           <header>
-            <h2>Customer Service</h2>
+            <div>
+              <img src="https://chicom.vn/static/media/Ellipse.b5e99880.png" />
+              <span>ChiCom</span>
+            </div>
           </header>
 
           {/*Chat Message Area*/}
