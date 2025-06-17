@@ -3,6 +3,7 @@ import { RiCustomerServiceLine } from "react-icons/ri";
 import { AiOutlineClose } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 
+//Values for animations
 const iconVariants = {
   initial: {
     rotate: "180deg",
@@ -21,6 +22,7 @@ const iconVariants = {
   },
 };
 
+//Value for transition
 const iconTransition = {
   duration: 0.125,
   ease: "easeInOut",

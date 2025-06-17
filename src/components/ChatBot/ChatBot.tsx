@@ -10,25 +10,28 @@ import {
 import { LuSend } from "react-icons/lu";
 import { motion, AnimatePresence } from "framer-motion";
 
+//Get chatOpen useState from ChatBotButton components
 interface ChatBotProps {
   chatOpen: boolean;
 }
 
+//The structure of a message
 interface Message {
   id: string;
   content: string;
   sender: "sent" | "received";
 }
 
+//Init message
 const INIT_MESSAGE: Message = {
   id: "initial-message",
-  content: "Hello. I am an AI assistance. What can I help you?",
+  content: "Hello. I am an AI assistance. How can I help you?",
   sender: "received",
 };
 
 //Components Main Code
 const ChatBot = ({ chatOpen }: ChatBotProps) => {
-  //Hook for input field
+  //Hook for input, list of messages and a for auto scrolling
   const [userText, setUserText] = useState<string>("");
   const [messageList, setMessageList] = useState<Message[]>([INIT_MESSAGE]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -41,26 +44,8 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
     []
   );
 
-  const handleMessage = useCallback(
-    (message: string, senderType: "sent" | "received") => {
-      const newMessage: Message = {
-        id: Date.now().toString(),
-        content: message,
-        sender: senderType,
-      };
-
-      setMessageList((prev) => [...prev, newMessage]);
-
-      if (senderType === "sent") {
-        setUserText("");
-        sendJSON(message);
-      }
-    },
-    [userText]
-  );
-
-  //Handle message submission
-  const handleFormSubmit = useCallback(
+  //Handle when user submit the message
+  const handleSubmission = useCallback(
     (event: FormEvent) => {
       event.preventDefault();
       const trimmedText = userText.trim();
@@ -68,11 +53,22 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
       if (!trimmedText) {
         return;
       }
-      handleMessage(trimmedText, "sent");
+
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        content: trimmedText,
+        sender: "sent",
+      };
+
+      //Append to message list
+      setMessageList((prev) => [...prev, newMessage]);
+      setUserText("");
+      sendJSON(trimmedText);
     },
     [userText]
   );
 
+  //Send an HTML POST to N8N
   const sendJSON = useCallback(
     async (message: string) => {
       try {
@@ -87,11 +83,13 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
           }
         );
 
+        //Throw error if received an error
         if (!response.ok) {
           console.log(response);
           throw new Error("API error");
         }
 
+        //Retrieve respond and print it on the screen
         const responseData = await response.json();
         setMessageList((prev) => [
           ...prev,
@@ -102,6 +100,7 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
           },
         ]);
       } catch (err) {
+        //Print out Error Message
         if (err instanceof Error) {
           setMessageList((prev) => [
             ...prev,
@@ -114,15 +113,17 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
         }
       }
     },
-    [handleMessage]
+    [handleSubmission]
   );
 
+  //Automatically scroll to the bottom of the chat area
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messageList]);
 
   return (
     <AnimatePresence>
+      {/*Only execute when chatOpen is true*/}
       {chatOpen && (
         <motion.div
           key="chat-window"
@@ -160,10 +161,11 @@ const ChatBot = ({ chatOpen }: ChatBotProps) => {
             <div ref={bottomRef} />
           </div>
 
+          {/*User input*/}
           <div className="chat-input">
             <form
               className="chat-input-wrapper"
-              onSubmit={(event) => handleFormSubmit(event)}
+              onSubmit={(event) => handleSubmission(event)}
             >
               {/*Input Area*/}
               <input
